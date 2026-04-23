@@ -1,30 +1,36 @@
+use std::cmp::Ordering;
 use std::io;
+
 use rand::Rng;
+
 fn main() {
-    println!("Welcome to guessing number game!");
+    println!("Guess the number!");
+
     let secret_number = rand::thread_rng().gen_range(1..=100);
-    println!("Secret number is: {}", secret_number);
-    println!("Please input your guess.");
 
-    let mut guess = String::new();
+    loop {
+        println!("Please input your guess.");
 
-    io::stdin()
-        .read_line(&mut guess)
-        .expect("Error in reading user input");
-    println!("You guessed: {}", guess);
+        let mut guess = String::new();
 
-    while guess.trim() != secret_number.to_string().trim() {
-        // if guessed number is closer to the secret number, print close or else far also
-        if guess.trim().parse::<i32>().unwrap() > secret_number {
-            println!("Your guess is too high!");
-        } else {
-            println!("Your guess is too low!");
-        }
-        guess.clear();
         io::stdin()
             .read_line(&mut guess)
-            .expect("Error in reading user input");
-        println!("You guessed: {}", guess);
+            .expect("Failed to read line");
+
+        let guess: u32 = match guess.trim().parse() {
+            Ok(num) => num,
+            Err(_) => continue,
+        };
+
+        println!("You guessed: {guess}");
+
+        match guess.cmp(&secret_number) {
+            Ordering::Less => println!("Too small!"),
+            Ordering::Greater => println!("Too big!"),
+            Ordering::Equal => {
+                println!("You win!");
+                break;
+            }
+        }
     }
-    println!("Congratulations! You guessed the number!");
 }
